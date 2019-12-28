@@ -1,0 +1,8 @@
+{
+    "name": "com.e7.ecs-testing",
+    "author": "Sirawat Pitaksarit / 5argon - Exceed7 Experiments",
+    "displayName": "ECS Testing",
+    "version": "0.0.1",
+    "unity": "2019.3",
+    "description": "Utilities to help writing tests for Unity Entities."
+}

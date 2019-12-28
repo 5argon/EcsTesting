@@ -1,0 +1,17 @@
+{
+    "name": "E7.EcsTesting",
+    "references": [
+        "Unity.Entities",
+        "Unity.Collections",
+        "Unity.Entities.Hybrid"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
