@@ -25,11 +25,13 @@ namespace codegen
 
         const string gsGetSingleton = @"
 /// <summary>
-/// Like `GetSingleton` in system but usable from outside.
+/// Perform a query that should result in only one result and return it.
+/// If it returns 0 or more than 1, it is considered a failing test.
+/// 
 /// You can add upto 0~6 CD and 0~2 SCD types to the query.
 /// The first type is always the returning value.
 /// </summary>
-public <<MAIN>> GetSingleton<<NOFILTER>><<<TYPEHOR>>>(<<ARGS>>)
+public <<MAIN>> GetSingle<<NOFILTER>><<<TYPEHOR>>>(<<ARGS>>)
 <<WHERE>>
 {
     using (var eq = em.CreateEntityQuery(
@@ -37,18 +39,27 @@ public <<MAIN>> GetSingleton<<NOFILTER>><<<TYPEHOR>>>(<<ARGS>>)
     ))
     {
         <<FILTER>>
-        return eq.GetSingleton<<<MAIN>>>();
+        using(var cda = eq.ToComponentDataArray<<<MAIN>>>(Allocator.TempJob))
+        {
+            if (cda.Length != 1)
+            {
+                throw new System.InvalidOperationException($""GetSingle() requires that exactly one exists but there are { cda.Length }."");
+            }
+            return cda[0];
+        }
     }
 }
 ";
 
         const string gsGetSingletonScdFirst = @"
 /// <summary>
-/// Like `GetSingleton` in system but usable from outside.
+/// Perform a query that should result in only one result and return it.
+/// If it returns 0 or more than 1, it is considered a failing test.
+/// 
 /// You can add upto 0~6 CD and 0~2 SCD types to the query.
 /// The first type is always the returning value.
 /// </summary>
-public <<MAIN>> GetSingleton<<NOFILTER>><<<TYPEHOR>>>(<<ARGS>>)
+public <<MAIN>> GetSingle<<NOFILTER>><<<TYPEHOR>>>(<<ARGS>>)
 <<WHERE>>
 {
     using (var eq = em.CreateEntityQuery(
@@ -56,7 +67,14 @@ public <<MAIN>> GetSingleton<<NOFILTER>><<<TYPEHOR>>>(<<ARGS>>)
     ))
     {
         <<FILTER>>
-        return em.GetSharedComponentData<<<MAIN>>>(eq.GetSingletonEntity());
+        using(var ea = eq.ToEntityArray(Allocator.TempJob))
+        {
+            if (ea.Length != 1)
+            {
+                throw new System.InvalidOperationException($""GetSingle() requires that exactly one exists but there are { ea.Length }."");
+            }
+            return em.GetSharedComponentData<<<MAIN>>>(ea[0]);
+        }
     }
 }
 ";
@@ -64,19 +82,20 @@ public <<MAIN>> GetSingleton<<NOFILTER>><<<TYPEHOR>>>(<<ARGS>>)
 
         const string gsGetSingletonEntity = @"
 /// <summary>
-/// Like `GetSingletonEntity` in system but usable from outside.
+/// Perform a query that should result in only one result and return it.
+/// If it returns 0 or more than 1, it is considered a failing test.
 /// 
 /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
 /// based on any of the CD. Query, SCD filter, and where filter combined must
 /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
 /// </summary>
-public Entity GetSingletonEntity<<NOFILTER>><<<TYPEHOR>>>(<<ARGS>>)
+public Entity GetSingleEntity<<NOFILTER>><<<TYPEHOR>>>(<<ARGS>>)
 <<WHERE>>
 {
     var ea = Entities<<<TYPEHOR>>>(<<ARGSFORWARD>>);
     if (ea.Length != 1)
     {
-        throw new System.InvalidOperationException($""GetSingletonEntity() requires that exactly one exists but there are { ea.Length }."");
+        throw new System.InvalidOperationException($""GetSingleEntity() requires that exactly one exists but there are { ea.Length }."");
     }
     return ea[0];
 }

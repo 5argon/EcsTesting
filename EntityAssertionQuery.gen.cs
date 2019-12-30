@@ -16,11 +16,13 @@ namespace E7.EcsTesting
     public partial class EntityAssertionQuery
     {
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public SCD1 GetSingleton<SCD1>(SCD1 filter1)
+        public SCD1 GetSingle<SCD1>(SCD1 filter1)
             where SCD1 : struct, ISharedComponentData
         {
             using (var eq = em.CreateEntityQuery(
@@ -28,26 +30,36 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter1);
-                return em.GetSharedComponentData<SCD1>(eq.GetSingletonEntity());
+                using (var ea = eq.ToEntityArray(Allocator.TempJob))
+                {
+                    if (ea.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {ea.Length}.");
+                    }
+
+                    return em.GetSharedComponentData<SCD1>(ea[0]);
+                }
             }
         }
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<SCD1>(SCD1 filter1)
+        public Entity GetSingleEntity<SCD1>(SCD1 filter1)
             where SCD1 : struct, ISharedComponentData
         {
             var ea = Entities<SCD1>(filter1);
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -123,37 +135,49 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public SCD1 GetSingleton<SCD1>(bool nf)
+        public SCD1 GetSingle<SCD1>(bool nf)
             where SCD1 : struct, ISharedComponentData
         {
             using (var eq = em.CreateEntityQuery(
                 ComponentType.ReadOnly<SCD1>()
             ))
             {
-                return em.GetSharedComponentData<SCD1>(eq.GetSingletonEntity());
+                using (var ea = eq.ToEntityArray(Allocator.TempJob))
+                {
+                    if (ea.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {ea.Length}.");
+                    }
+
+                    return em.GetSharedComponentData<SCD1>(ea[0]);
+                }
             }
         }
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<SCD1>(bool nf)
+        public Entity GetSingleEntity<SCD1>(bool nf)
             where SCD1 : struct, ISharedComponentData
         {
             var ea = Entities<SCD1>(nf);
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -227,11 +251,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public SCD1 GetSingleton<SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
+        public SCD1 GetSingle<SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
             where SCD1 : struct, ISharedComponentData
             where SCD2 : struct, ISharedComponentData
         {
@@ -241,19 +267,29 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter1, filter2);
-                return em.GetSharedComponentData<SCD1>(eq.GetSingletonEntity());
+                using (var ea = eq.ToEntityArray(Allocator.TempJob))
+                {
+                    if (ea.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {ea.Length}.");
+                    }
+
+                    return em.GetSharedComponentData<SCD1>(ea[0]);
+                }
             }
         }
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
+        public Entity GetSingleEntity<SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
             where SCD1 : struct, ISharedComponentData
             where SCD2 : struct, ISharedComponentData
         {
@@ -261,7 +297,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -341,11 +377,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public SCD1 GetSingleton<SCD1, SCD2>(bool nf1, SCD2 filter2)
+        public SCD1 GetSingle<SCD1, SCD2>(bool nf1, SCD2 filter2)
             where SCD1 : struct, ISharedComponentData
             where SCD2 : struct, ISharedComponentData
         {
@@ -355,19 +393,29 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter2);
-                return em.GetSharedComponentData<SCD1>(eq.GetSingletonEntity());
+                using (var ea = eq.ToEntityArray(Allocator.TempJob))
+                {
+                    if (ea.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {ea.Length}.");
+                    }
+
+                    return em.GetSharedComponentData<SCD1>(ea[0]);
+                }
             }
         }
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<SCD1, SCD2>(bool nf1, SCD2 filter2)
+        public Entity GetSingleEntity<SCD1, SCD2>(bool nf1, SCD2 filter2)
             where SCD1 : struct, ISharedComponentData
             where SCD2 : struct, ISharedComponentData
         {
@@ -375,7 +423,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -455,11 +503,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public SCD1 GetSingleton<SCD1, SCD2>(bool nf1, bool nf2)
+        public SCD1 GetSingle<SCD1, SCD2>(bool nf1, bool nf2)
             where SCD1 : struct, ISharedComponentData
             where SCD2 : struct, ISharedComponentData
         {
@@ -468,19 +518,29 @@ namespace E7.EcsTesting
                 ComponentType.ReadOnly<SCD2>()
             ))
             {
-                return em.GetSharedComponentData<SCD1>(eq.GetSingletonEntity());
+                using (var ea = eq.ToEntityArray(Allocator.TempJob))
+                {
+                    if (ea.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {ea.Length}.");
+                    }
+
+                    return em.GetSharedComponentData<SCD1>(ea[0]);
+                }
             }
         }
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<SCD1, SCD2>(bool nf1, bool nf2)
+        public Entity GetSingleEntity<SCD1, SCD2>(bool nf1, bool nf2)
             where SCD1 : struct, ISharedComponentData
             where SCD2 : struct, ISharedComponentData
         {
@@ -488,7 +548,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -566,18 +626,29 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1>()
+        public CD1 GetSingle<CD1>()
             where CD1 : struct, IComponentData
         {
             using (var eq = em.CreateEntityQuery(
                 ComponentType.ReadOnly<CD1>()
             ))
             {
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -602,20 +673,21 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1>()
+        public Entity GetSingleEntity<CD1>()
             where CD1 : struct, IComponentData
         {
             var ea = Entities<CD1>();
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -689,20 +761,21 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1>(Func<CD1, bool> where)
+        public Entity GetSingleEntity<CD1>(Func<CD1, bool> where)
             where CD1 : struct, IComponentData
         {
             var ea = Entities<CD1>(where);
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -818,11 +891,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, SCD1>(SCD1 filter1)
+        public CD1 GetSingle<CD1, SCD1>(SCD1 filter1)
             where CD1 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
         {
@@ -832,7 +907,16 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter1);
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -860,13 +944,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, SCD1>(SCD1 filter1)
+        public Entity GetSingleEntity<CD1, SCD1>(SCD1 filter1)
             where CD1 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
         {
@@ -874,7 +959,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -954,11 +1039,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, SCD1>(bool nf)
+        public CD1 GetSingle<CD1, SCD1>(bool nf)
             where CD1 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
         {
@@ -967,7 +1054,16 @@ namespace E7.EcsTesting
                 ComponentType.ReadOnly<SCD1>()
             ))
             {
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -994,13 +1090,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, SCD1>(bool nf)
+        public Entity GetSingleEntity<CD1, SCD1>(bool nf)
             where CD1 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
         {
@@ -1008,7 +1105,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -1086,13 +1183,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, SCD1>(Func<CD1, bool> where, SCD1 filter1)
+        public Entity GetSingleEntity<CD1, SCD1>(Func<CD1, bool> where, SCD1 filter1)
             where CD1 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
         {
@@ -1100,7 +1198,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -1222,13 +1320,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, SCD1>(Func<CD1, bool> where, bool nf)
+        public Entity GetSingleEntity<CD1, SCD1>(Func<CD1, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
         {
@@ -1236,7 +1335,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -1356,11 +1455,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
+        public CD1 GetSingle<CD1, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
             where SCD2 : struct, ISharedComponentData
@@ -1372,7 +1473,16 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter1, filter2);
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -1402,13 +1512,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
             where SCD2 : struct, ISharedComponentData
@@ -1417,7 +1528,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -1501,11 +1612,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, SCD1, SCD2>(bool nf1, SCD2 filter2)
+        public CD1 GetSingle<CD1, SCD1, SCD2>(bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
             where SCD2 : struct, ISharedComponentData
@@ -1517,7 +1630,16 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter2);
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -1547,13 +1669,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, SCD1, SCD2>(bool nf1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, SCD1, SCD2>(bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
             where SCD2 : struct, ISharedComponentData
@@ -1562,7 +1685,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -1646,11 +1769,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, SCD1, SCD2>(bool nf1, bool nf2)
+        public CD1 GetSingle<CD1, SCD1, SCD2>(bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
             where SCD2 : struct, ISharedComponentData
@@ -1661,7 +1786,16 @@ namespace E7.EcsTesting
                 ComponentType.ReadOnly<SCD2>()
             ))
             {
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -1690,13 +1824,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, SCD1, SCD2>(bool nf1, bool nf2)
+        public Entity GetSingleEntity<CD1, SCD1, SCD2>(bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
             where SCD2 : struct, ISharedComponentData
@@ -1705,7 +1840,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -1787,13 +1922,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, SCD1, SCD2>(Func<CD1, bool> where, SCD1 filter1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, SCD1, SCD2>(Func<CD1, bool> where, SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
             where SCD2 : struct, ISharedComponentData
@@ -1802,7 +1938,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -1928,13 +2064,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, SCD1, SCD2>(Func<CD1, bool> where, bool nf1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, SCD1, SCD2>(Func<CD1, bool> where, bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
             where SCD2 : struct, ISharedComponentData
@@ -1943,7 +2080,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -2069,13 +2206,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, SCD1, SCD2>(Func<CD1, bool> where, bool nf1, bool nf2)
+        public Entity GetSingleEntity<CD1, SCD1, SCD2>(Func<CD1, bool> where, bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
             where SCD2 : struct, ISharedComponentData
@@ -2084,7 +2222,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -2208,11 +2346,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2>()
+        public CD1 GetSingle<CD1, CD2>()
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
         {
@@ -2221,7 +2361,16 @@ namespace E7.EcsTesting
                 ComponentType.ReadOnly<CD2>()
             ))
             {
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -2248,13 +2397,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2>()
+        public Entity GetSingleEntity<CD1, CD2>()
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
         {
@@ -2262,7 +2412,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -2340,13 +2490,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2>(Func<CD1, bool> where)
+        public Entity GetSingleEntity<CD1, CD2>(Func<CD1, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
         {
@@ -2354,7 +2505,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -2474,13 +2625,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2>(Func<CD1, CD2, bool> where)
+        public Entity GetSingleEntity<CD1, CD2>(Func<CD1, CD2, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
         {
@@ -2488,7 +2640,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -2610,11 +2762,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, SCD1>(SCD1 filter1)
+        public CD1 GetSingle<CD1, CD2, SCD1>(SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -2626,7 +2780,16 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter1);
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -2656,13 +2819,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, SCD1>(SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, SCD1>(SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -2671,7 +2835,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -2755,11 +2919,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, SCD1>(bool nf)
+        public CD1 GetSingle<CD1, CD2, SCD1>(bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -2770,7 +2936,16 @@ namespace E7.EcsTesting
                 ComponentType.ReadOnly<SCD1>()
             ))
             {
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -2799,13 +2974,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, SCD1>(bool nf)
+        public Entity GetSingleEntity<CD1, CD2, SCD1>(bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -2814,7 +2990,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -2896,13 +3072,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, SCD1>(Func<CD1, bool> where, SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, SCD1>(Func<CD1, bool> where, SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -2911,7 +3088,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -3037,13 +3214,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, SCD1>(Func<CD1, bool> where, bool nf)
+        public Entity GetSingleEntity<CD1, CD2, SCD1>(Func<CD1, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -3052,7 +3230,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -3176,13 +3354,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, SCD1>(Func<CD1, CD2, bool> where, SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, SCD1>(Func<CD1, CD2, bool> where, SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -3191,7 +3370,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -3319,13 +3498,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, SCD1>(Func<CD1, CD2, bool> where, bool nf)
+        public Entity GetSingleEntity<CD1, CD2, SCD1>(Func<CD1, CD2, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -3334,7 +3514,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -3460,11 +3640,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
+        public CD1 GetSingle<CD1, CD2, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -3478,7 +3660,16 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter1, filter2);
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -3510,13 +3701,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -3526,7 +3718,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -3614,11 +3806,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, SCD1, SCD2>(bool nf1, SCD2 filter2)
+        public CD1 GetSingle<CD1, CD2, SCD1, SCD2>(bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -3632,7 +3826,16 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter2);
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -3664,13 +3867,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, SCD1, SCD2>(bool nf1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, SCD1, SCD2>(bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -3680,7 +3884,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -3768,11 +3972,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, SCD1, SCD2>(bool nf1, bool nf2)
+        public CD1 GetSingle<CD1, CD2, SCD1, SCD2>(bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -3785,7 +3991,16 @@ namespace E7.EcsTesting
                 ComponentType.ReadOnly<SCD2>()
             ))
             {
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -3816,13 +4031,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, SCD1, SCD2>(bool nf1, bool nf2)
+        public Entity GetSingleEntity<CD1, CD2, SCD1, SCD2>(bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -3832,7 +4048,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -3918,13 +4134,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, SCD1, SCD2>(Func<CD1, bool> where, SCD1 filter1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, SCD1, SCD2>(Func<CD1, bool> where, SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -3934,7 +4151,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -4064,13 +4281,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, SCD1, SCD2>(Func<CD1, bool> where, bool nf1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, SCD1, SCD2>(Func<CD1, bool> where, bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -4080,7 +4298,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -4210,13 +4428,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, SCD1, SCD2>(Func<CD1, bool> where, bool nf1, bool nf2)
+        public Entity GetSingleEntity<CD1, CD2, SCD1, SCD2>(Func<CD1, bool> where, bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -4226,7 +4445,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -4354,13 +4573,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, SCD1, SCD2>(Func<CD1, CD2, bool> where, SCD1 filter1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, SCD1, SCD2>(Func<CD1, CD2, bool> where, SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -4370,7 +4590,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -4502,13 +4722,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -4518,7 +4739,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -4650,13 +4871,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1, bool nf2)
+        public Entity GetSingleEntity<CD1, CD2, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where SCD1 : struct, ISharedComponentData
@@ -4666,7 +4888,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -4796,11 +5018,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3>()
+        public CD1 GetSingle<CD1, CD2, CD3>()
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -4811,7 +5035,16 @@ namespace E7.EcsTesting
                 ComponentType.ReadOnly<CD3>()
             ))
             {
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -4840,13 +5073,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3>()
+        public Entity GetSingleEntity<CD1, CD2, CD3>()
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -4855,7 +5089,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -4937,13 +5171,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3>(Func<CD1, bool> where)
+        public Entity GetSingleEntity<CD1, CD2, CD3>(Func<CD1, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -4952,7 +5187,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -5076,13 +5311,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3>(Func<CD1, CD2, bool> where)
+        public Entity GetSingleEntity<CD1, CD2, CD3>(Func<CD1, CD2, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -5091,7 +5327,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -5217,13 +5453,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3>(Func<CD1, CD2, CD3, bool> where)
+        public Entity GetSingleEntity<CD1, CD2, CD3>(Func<CD1, CD2, CD3, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -5232,7 +5469,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -5360,11 +5597,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, SCD1>(SCD1 filter1)
+        public CD1 GetSingle<CD1, CD2, CD3, SCD1>(SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -5378,7 +5617,16 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter1);
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -5410,13 +5658,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1>(SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1>(SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -5426,7 +5675,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -5514,11 +5763,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, SCD1>(bool nf)
+        public CD1 GetSingle<CD1, CD2, CD3, SCD1>(bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -5531,7 +5782,16 @@ namespace E7.EcsTesting
                 ComponentType.ReadOnly<SCD1>()
             ))
             {
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -5562,13 +5822,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1>(bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1>(bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -5578,7 +5839,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -5664,13 +5925,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1>(Func<CD1, bool> where, SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1>(Func<CD1, bool> where, SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -5680,7 +5942,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -5810,13 +6072,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1>(Func<CD1, bool> where, bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1>(Func<CD1, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -5826,7 +6089,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -5954,13 +6217,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1>(Func<CD1, CD2, bool> where, SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1>(Func<CD1, CD2, bool> where, SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -5970,7 +6234,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -6102,13 +6366,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1>(Func<CD1, CD2, bool> where, bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1>(Func<CD1, CD2, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -6118,7 +6383,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -6248,13 +6513,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1>(Func<CD1, CD2, CD3, bool> where, SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1>(Func<CD1, CD2, CD3, bool> where, SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -6264,7 +6530,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -6398,13 +6664,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1>(Func<CD1, CD2, CD3, bool> where, bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1>(Func<CD1, CD2, CD3, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -6414,7 +6681,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -6546,11 +6813,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
+        public CD1 GetSingle<CD1, CD2, CD3, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -6566,7 +6835,16 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter1, filter2);
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -6600,13 +6878,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -6617,7 +6896,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -6709,11 +6988,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, SCD1, SCD2>(bool nf1, SCD2 filter2)
+        public CD1 GetSingle<CD1, CD2, CD3, SCD1, SCD2>(bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -6729,7 +7010,16 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter2);
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -6763,13 +7053,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1, SCD2>(bool nf1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1, SCD2>(bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -6780,7 +7071,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -6872,11 +7163,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, SCD1, SCD2>(bool nf1, bool nf2)
+        public CD1 GetSingle<CD1, CD2, CD3, SCD1, SCD2>(bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -6891,7 +7184,16 @@ namespace E7.EcsTesting
                 ComponentType.ReadOnly<SCD2>()
             ))
             {
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -6924,13 +7226,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1, SCD2>(bool nf1, bool nf2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1, SCD2>(bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -6941,7 +7244,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -7031,13 +7334,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1, SCD2>(Func<CD1, bool> where, SCD1 filter1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1, SCD2>(Func<CD1, bool> where, SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -7048,7 +7352,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -7182,13 +7486,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1, SCD2>(Func<CD1, bool> where, bool nf1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1, SCD2>(Func<CD1, bool> where, bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -7199,7 +7504,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -7333,13 +7638,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1, SCD2>(Func<CD1, bool> where, bool nf1, bool nf2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1, SCD2>(Func<CD1, bool> where, bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -7350,7 +7656,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -7482,14 +7788,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1, SCD2>(Func<CD1, CD2, bool> where, SCD1 filter1,
-            SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1, SCD2>(Func<CD1, CD2, bool> where, SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -7500,7 +7806,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -7636,13 +7942,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -7653,7 +7960,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -7789,13 +8096,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1, bool nf2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -7806,7 +8114,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -7940,13 +8248,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where, SCD1 filter1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where, SCD1 filter1,
             SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -7958,7 +8267,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -8096,13 +8405,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where, bool nf1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where, bool nf1,
             SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -8114,7 +8424,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -8252,13 +8562,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where, bool nf1, bool nf2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where, bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -8269,7 +8580,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -8405,11 +8716,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, CD4>()
+        public CD1 GetSingle<CD1, CD2, CD3, CD4>()
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -8422,7 +8735,16 @@ namespace E7.EcsTesting
                 ComponentType.ReadOnly<CD4>()
             ))
             {
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -8453,13 +8775,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4>()
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4>()
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -8469,7 +8792,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -8555,13 +8878,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4>(Func<CD1, bool> where)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4>(Func<CD1, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -8571,7 +8895,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -8699,13 +9023,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4>(Func<CD1, CD2, bool> where)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4>(Func<CD1, CD2, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -8715,7 +9040,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -8845,13 +9170,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4>(Func<CD1, CD2, CD3, bool> where)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4>(Func<CD1, CD2, CD3, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -8861,7 +9187,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -8993,13 +9319,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4>(Func<CD1, CD2, CD3, CD4, bool> where)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4>(Func<CD1, CD2, CD3, CD4, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -9009,7 +9336,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -9143,11 +9470,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, CD4, SCD1>(SCD1 filter1)
+        public CD1 GetSingle<CD1, CD2, CD3, CD4, SCD1>(SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -9163,7 +9492,16 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter1);
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -9197,13 +9535,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1>(SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1>(SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -9214,7 +9553,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -9306,11 +9645,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, CD4, SCD1>(bool nf)
+        public CD1 GetSingle<CD1, CD2, CD3, CD4, SCD1>(bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -9325,7 +9666,16 @@ namespace E7.EcsTesting
                 ComponentType.ReadOnly<SCD1>()
             ))
             {
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -9358,13 +9708,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1>(bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1>(bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -9375,7 +9726,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -9465,13 +9816,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1>(Func<CD1, bool> where, SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1>(Func<CD1, bool> where, SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -9482,7 +9834,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -9616,13 +9968,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1>(Func<CD1, bool> where, bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1>(Func<CD1, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -9633,7 +9986,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -9765,13 +10118,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1>(Func<CD1, CD2, bool> where, SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1>(Func<CD1, CD2, bool> where, SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -9782,7 +10136,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -9918,13 +10272,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1>(Func<CD1, CD2, bool> where, bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1>(Func<CD1, CD2, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -9935,7 +10290,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -10069,13 +10424,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1>(Func<CD1, CD2, CD3, bool> where, SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1>(Func<CD1, CD2, CD3, bool> where, SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -10086,7 +10442,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -10224,13 +10580,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1>(Func<CD1, CD2, CD3, bool> where, bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1>(Func<CD1, CD2, CD3, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -10241,7 +10598,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -10377,13 +10734,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1>(Func<CD1, CD2, CD3, CD4, bool> where, SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1>(Func<CD1, CD2, CD3, CD4, bool> where, SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -10394,7 +10752,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -10534,13 +10892,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1>(Func<CD1, CD2, CD3, CD4, bool> where, bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1>(Func<CD1, CD2, CD3, CD4, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -10551,7 +10910,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -10689,11 +11048,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, CD4, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
+        public CD1 GetSingle<CD1, CD2, CD3, CD4, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -10711,7 +11072,16 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter1, filter2);
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -10747,13 +11117,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -10765,7 +11136,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -10861,11 +11232,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, CD4, SCD1, SCD2>(bool nf1, SCD2 filter2)
+        public CD1 GetSingle<CD1, CD2, CD3, CD4, SCD1, SCD2>(bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -10883,7 +11256,16 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter2);
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -10919,13 +11301,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(bool nf1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -10937,7 +11320,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -11033,11 +11416,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, CD4, SCD1, SCD2>(bool nf1, bool nf2)
+        public CD1 GetSingle<CD1, CD2, CD3, CD4, SCD1, SCD2>(bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -11054,7 +11439,16 @@ namespace E7.EcsTesting
                 ComponentType.ReadOnly<SCD2>()
             ))
             {
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -11089,13 +11483,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(bool nf1, bool nf2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -11107,7 +11502,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -11201,14 +11596,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, bool> where, SCD1 filter1,
-            SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, bool> where, SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -11220,7 +11615,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -11358,13 +11753,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, bool> where, bool nf1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, bool> where, bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -11376,7 +11772,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -11514,13 +11910,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, bool> where, bool nf1, bool nf2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, bool> where, bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -11532,7 +11929,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -11668,13 +12065,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, CD2, bool> where, SCD1 filter1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, CD2, bool> where, SCD1 filter1,
             SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -11687,7 +12085,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -11827,13 +12225,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1,
             SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -11846,7 +12245,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -11986,13 +12385,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1, bool nf2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -12004,7 +12404,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -12142,13 +12542,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where, SCD1 filter1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where, SCD1 filter1,
             SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -12161,7 +12562,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -12305,13 +12706,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where, bool nf1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where, bool nf1,
             SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -12324,7 +12726,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -12467,13 +12869,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where, bool nf1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where, bool nf1,
             bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -12486,7 +12889,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -12626,13 +13029,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, bool> where,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, bool> where,
             SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -12645,7 +13049,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -12791,13 +13195,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, bool> where, bool nf1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, bool> where, bool nf1,
             SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -12810,7 +13215,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -12956,13 +13361,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, bool> where, bool nf1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, bool> where, bool nf1,
             bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -12975,7 +13381,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -13118,11 +13524,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, CD4, CD5>()
+        public CD1 GetSingle<CD1, CD2, CD3, CD4, CD5>()
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -13137,7 +13545,16 @@ namespace E7.EcsTesting
                 ComponentType.ReadOnly<CD5>()
             ))
             {
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -13170,13 +13587,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5>()
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5>()
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -13187,7 +13605,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -13277,13 +13695,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5>(Func<CD1, bool> where)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5>(Func<CD1, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -13294,7 +13713,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -13426,13 +13845,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5>(Func<CD1, CD2, bool> where)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5>(Func<CD1, CD2, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -13443,7 +13863,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -13577,13 +13997,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5>(Func<CD1, CD2, CD3, bool> where)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5>(Func<CD1, CD2, CD3, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -13594,7 +14015,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -13730,13 +14151,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5>(Func<CD1, CD2, CD3, CD4, bool> where)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5>(Func<CD1, CD2, CD3, CD4, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -13747,7 +14169,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -13885,13 +14307,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5>(Func<CD1, CD2, CD3, CD4, CD5, bool> where)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5>(Func<CD1, CD2, CD3, CD4, CD5, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -13902,7 +14325,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -14042,11 +14465,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, CD4, CD5, SCD1>(SCD1 filter1)
+        public CD1 GetSingle<CD1, CD2, CD3, CD4, CD5, SCD1>(SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -14064,7 +14489,16 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter1);
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -14100,13 +14534,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -14118,7 +14553,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -14214,11 +14649,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, CD4, CD5, SCD1>(bool nf)
+        public CD1 GetSingle<CD1, CD2, CD3, CD4, CD5, SCD1>(bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -14235,7 +14672,16 @@ namespace E7.EcsTesting
                 ComponentType.ReadOnly<SCD1>()
             ))
             {
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -14270,13 +14716,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -14288,7 +14735,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -14382,13 +14829,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, bool> where, SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, bool> where, SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -14400,7 +14848,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -14538,13 +14986,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, bool> where, bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -14556,7 +15005,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -14692,13 +15141,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, CD2, bool> where, SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, CD2, bool> where, SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -14710,7 +15160,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -14850,13 +15300,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, CD2, bool> where, bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, CD2, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -14868,7 +15319,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -15006,13 +15457,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, CD2, CD3, bool> where, SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, CD2, CD3, bool> where, SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -15024,7 +15476,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -15166,13 +15618,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, CD2, CD3, bool> where, bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, CD2, CD3, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -15184,7 +15637,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -15324,14 +15777,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, CD2, CD3, CD4, bool> where,
-            SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, CD2, CD3, CD4, bool> where, SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -15343,7 +15796,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -15487,13 +15940,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, CD2, CD3, CD4, bool> where, bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, CD2, CD3, CD4, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -15505,7 +15959,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -15647,13 +16101,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, CD2, CD3, CD4, CD5, bool> where,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, CD2, CD3, CD4, CD5, bool> where,
             SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -15666,7 +16121,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -15812,14 +16267,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, CD2, CD3, CD4, CD5, bool> where,
-            bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1>(Func<CD1, CD2, CD3, CD4, CD5, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -15831,7 +16286,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -15975,11 +16430,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
+        public CD1 GetSingle<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -15999,7 +16456,16 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter1, filter2);
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -16037,13 +16503,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -16056,7 +16523,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -16156,11 +16623,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(bool nf1, SCD2 filter2)
+        public CD1 GetSingle<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -16180,7 +16649,16 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter2);
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -16218,13 +16696,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(bool nf1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -16237,7 +16716,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -16337,11 +16816,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(bool nf1, bool nf2)
+        public CD1 GetSingle<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -16360,7 +16841,16 @@ namespace E7.EcsTesting
                 ComponentType.ReadOnly<SCD2>()
             ))
             {
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -16397,13 +16887,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(bool nf1, bool nf2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -16416,7 +16907,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -16514,13 +17005,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, bool> where, SCD1 filter1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, bool> where, SCD1 filter1,
             SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -16534,7 +17026,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -16676,13 +17168,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, bool> where, bool nf1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, bool> where, bool nf1,
             SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -16696,7 +17189,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -16838,13 +17331,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, bool> where, bool nf1, bool nf2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, bool> where, bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -16857,7 +17351,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -16997,13 +17491,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, bool> where, SCD1 filter1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, bool> where, SCD1 filter1,
             SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -17017,7 +17512,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -17163,13 +17658,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1,
             SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -17183,7 +17679,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -17328,13 +17824,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1,
             bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -17348,7 +17845,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -17490,13 +17987,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where,
             SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -17510,7 +18008,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -17658,13 +18156,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where, bool nf1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where, bool nf1,
             SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -17678,7 +18177,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -17826,13 +18325,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where, bool nf1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where, bool nf1,
             bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -17846,7 +18346,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -17991,13 +18491,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, bool> where,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, bool> where,
             SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -18011,7 +18512,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -18161,13 +18662,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, bool> where,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, bool> where,
             bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -18181,7 +18683,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -18331,13 +18833,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, bool> where,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, bool> where,
             bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -18351,7 +18854,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -18499,13 +19002,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, CD5, bool> where,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, CD5, bool> where,
             SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -18519,7 +19023,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -18671,13 +19175,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, CD5, bool> where,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, CD5, bool> where,
             bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -18691,7 +19196,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -18843,13 +19348,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, CD5, bool> where,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, CD5, bool> where,
             bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -18863,7 +19369,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -19013,11 +19519,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, CD4, CD5, CD6>()
+        public CD1 GetSingle<CD1, CD2, CD3, CD4, CD5, CD6>()
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -19034,7 +19542,16 @@ namespace E7.EcsTesting
                 ComponentType.ReadOnly<CD6>()
             ))
             {
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -19069,13 +19586,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6>()
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6>()
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -19087,7 +19605,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -19181,13 +19699,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6>(Func<CD1, bool> where)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6>(Func<CD1, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -19199,7 +19718,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -19335,13 +19854,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6>(Func<CD1, CD2, bool> where)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6>(Func<CD1, CD2, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -19353,7 +19873,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -19491,13 +20011,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6>(Func<CD1, CD2, CD3, bool> where)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6>(Func<CD1, CD2, CD3, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -19509,7 +20030,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -19649,13 +20170,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6>(Func<CD1, CD2, CD3, CD4, bool> where)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6>(Func<CD1, CD2, CD3, CD4, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -19667,7 +20189,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -19809,13 +20331,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6>(Func<CD1, CD2, CD3, CD4, CD5, bool> where)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6>(Func<CD1, CD2, CD3, CD4, CD5, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -19827,7 +20350,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -19971,13 +20494,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6>(Func<CD1, CD2, CD3, CD4, CD5, CD6, bool> where)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6>(Func<CD1, CD2, CD3, CD4, CD5, CD6, bool> where)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -19989,7 +20513,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -20135,11 +20659,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(SCD1 filter1)
+        public CD1 GetSingle<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -20159,7 +20685,16 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter1);
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -20197,13 +20732,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -20216,7 +20752,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -20316,11 +20852,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(bool nf)
+        public CD1 GetSingle<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -20339,7 +20877,16 @@ namespace E7.EcsTesting
                 ComponentType.ReadOnly<SCD1>()
             ))
             {
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -20376,13 +20923,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -20395,7 +20943,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -20493,13 +21041,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, bool> where, SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, bool> where, SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -20512,7 +21061,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -20654,13 +21203,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, bool> where, bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -20673,7 +21223,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -20813,13 +21363,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, CD2, bool> where, SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, CD2, bool> where, SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -20832,7 +21383,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -20976,13 +21527,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, CD2, bool> where, bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, CD2, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -20995,7 +21547,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -21137,14 +21689,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, CD2, CD3, bool> where,
-            SCD1 filter1)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, CD2, CD3, bool> where, SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -21157,7 +21709,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -21303,13 +21855,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, CD2, CD3, bool> where, bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, CD2, CD3, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -21322,7 +21875,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -21466,13 +22019,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, CD2, CD3, CD4, bool> where,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, CD2, CD3, CD4, bool> where,
             SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -21486,7 +22040,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -21634,14 +22188,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, CD2, CD3, CD4, bool> where,
-            bool nf)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, CD2, CD3, CD4, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -21654,7 +22208,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -21800,13 +22354,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, CD2, CD3, CD4, CD5, bool> where,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, CD2, CD3, CD4, CD5, bool> where,
             SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -21820,7 +22375,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -21972,13 +22527,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, CD2, CD3, CD4, CD5, bool> where,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(Func<CD1, CD2, CD3, CD4, CD5, bool> where,
             bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -21992,7 +22548,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -22140,13 +22696,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(
             Func<CD1, CD2, CD3, CD4, CD5, CD6, bool> where, SCD1 filter1)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -22160,7 +22717,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -22314,13 +22871,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1>(
             Func<CD1, CD2, CD3, CD4, CD5, CD6, bool> where, bool nf)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -22334,7 +22892,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -22486,11 +23044,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
+        public CD1 GetSingle<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -22512,7 +23072,16 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter1, filter2);
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -22552,13 +23121,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -22572,7 +23142,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -22676,11 +23246,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(bool nf1, SCD2 filter2)
+        public CD1 GetSingle<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -22702,7 +23274,16 @@ namespace E7.EcsTesting
             ))
             {
                 eq.SetSharedComponentFilter(filter2);
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -22742,13 +23323,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(bool nf1, SCD2 filter2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -22762,7 +23344,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -22866,11 +23448,13 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingleton` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
+        /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query.
         /// The first type is always the returning value.
         /// </summary>
-        public CD1 GetSingleton<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(bool nf1, bool nf2)
+        public CD1 GetSingle<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -22891,7 +23475,16 @@ namespace E7.EcsTesting
                 ComponentType.ReadOnly<SCD2>()
             ))
             {
-                return eq.GetSingleton<CD1>();
+                using (var cda = eq.ToComponentDataArray<CD1>(Allocator.TempJob))
+                {
+                    if (cda.Length != 1)
+                    {
+                        throw new System.InvalidOperationException(
+                            $"GetSingle() requires that exactly one exists but there are {cda.Length}.");
+                    }
+
+                    return cda[0];
+                }
             }
         }
 
@@ -22930,13 +23523,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(bool nf1, bool nf2)
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
             where CD3 : struct, IComponentData
@@ -22950,7 +23544,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -23052,13 +23646,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, bool> where, SCD1 filter1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, bool> where, SCD1 filter1,
             SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -23073,7 +23668,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -23221,13 +23816,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, bool> where, bool nf1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, bool> where, bool nf1,
             SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -23242,7 +23838,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -23389,13 +23985,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, bool> where, bool nf1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, bool> where, bool nf1,
             bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -23410,7 +24007,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -23554,13 +24151,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, CD2, bool> where,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, CD2, bool> where,
             SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -23575,7 +24173,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -23725,13 +24323,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1,
             SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -23746,7 +24345,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -23896,13 +24495,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, CD2, bool> where, bool nf1,
             bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -23917,7 +24517,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -24064,13 +24664,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where,
             SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -24085,7 +24686,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -24237,13 +24838,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where,
             bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -24258,7 +24860,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -24410,13 +25012,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, CD2, CD3, bool> where,
             bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -24431,7 +25034,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -24581,13 +25184,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, bool> where,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, bool> where,
             SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -24602,7 +25206,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -24756,13 +25360,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, bool> where,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, bool> where,
             bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -24777,7 +25382,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -24931,13 +25536,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, bool> where,
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(Func<CD1, CD2, CD3, CD4, bool> where,
             bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -24952,7 +25558,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -25104,13 +25710,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(
             Func<CD1, CD2, CD3, CD4, CD5, bool> where, SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -25125,7 +25732,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -25281,13 +25888,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(
             Func<CD1, CD2, CD3, CD4, CD5, bool> where, bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -25302,7 +25910,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -25458,13 +26066,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(
             Func<CD1, CD2, CD3, CD4, CD5, bool> where, bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -25479,7 +26088,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -25633,13 +26242,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(
             Func<CD1, CD2, CD3, CD4, CD5, CD6, bool> where, SCD1 filter1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -25654,7 +26264,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -25812,13 +26422,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(
             Func<CD1, CD2, CD3, CD4, CD5, CD6, bool> where, bool nf1, SCD2 filter2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -25833,7 +26444,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];
@@ -25991,13 +26602,14 @@ namespace E7.EcsTesting
 
 
         /// <summary>
-        /// Like `GetSingletonEntity` in system but usable from outside.
+        /// Perform a query that should result in only one result and return it.
+        /// If it returns 0 or more than 1, it is considered a failing test.
         /// 
         /// You can add upto 0~6 CD and 0~2 SCD types to the query and also where filter
         /// based on any of the CD. Query, SCD filter, and where filter combined must
         /// produce 1 entity. Automatically throws if it wasn't, which is useful in tests.
         /// </summary>
-        public Entity GetSingletonEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(
+        public Entity GetSingleEntity<CD1, CD2, CD3, CD4, CD5, CD6, SCD1, SCD2>(
             Func<CD1, CD2, CD3, CD4, CD5, CD6, bool> where, bool nf1, bool nf2)
             where CD1 : struct, IComponentData
             where CD2 : struct, IComponentData
@@ -26012,7 +26624,7 @@ namespace E7.EcsTesting
             if (ea.Length != 1)
             {
                 throw new System.InvalidOperationException(
-                    $"GetSingletonEntity() requires that exactly one exists but there are {ea.Length}.");
+                    $"GetSingleEntity() requires that exactly one exists but there are {ea.Length}.");
             }
 
             return ea[0];

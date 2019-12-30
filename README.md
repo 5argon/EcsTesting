@@ -27,12 +27,12 @@ These are all available methods for use :
 
 ### Returns component data
 
-- `GetSingleton` : `EntityQuery.GetSingleton` equivalent.
+- `GetSingle` : Similar to `EntityQuery.GetSingleton` but the meaning is that any combination of query that results in 1 entity returned. (0 or more than 1 results in failing test.)
 - `Components` : `EntityQuery.ToComponentDataArray` equivalent but return managed array that you don't have to dispose.
 
 ### Returns `Entity`
 
-- `GetSingletonEntity` : `EntityQuery.GetSingletonEntity` equivalent.
+- `GetSingleEntity` : Similar to `EntityQuery.GetSingletonEntity` but the meaning is that any combination of query that results in 1 entity returned. (0 or more than 1 results in failing test.)
 - `EntityCount` : `EntityQuery.CalculateEntityCount` equivalent.
 - `Entities` :  `EntityQuery.ToEntityArray` equivalent but return managed array that you don't have to dispose.
 
@@ -45,11 +45,11 @@ What's different about their equivalent is that you specify your query via gener
 ```csharp
 // When using methods that returns component data, the first type is the return type.
 // All others are tags to further filter the result.
-eaq.GetSingleton<CD1, CD2>(); //returns CD1
+eaq.GetSingle<CD1, CD2>(); //returns CD1
 eaq.Components<CD1, CD2, CD3>(); //returns CD1
 
 // Methods that returns `Entity` you can order however you like.
-eaq.GetSingletonEntity<CD1, CD2, CD3>();
+eaq.GetSingle<CD1, CD2, CD3>();
 eaq.EntityCount<CD1>();
 eaq.Entities<CD1, CD2>();
 ```
@@ -83,7 +83,7 @@ You can add WHERE filter on multiple `IComponentData` (in the same sense as LINQ
 
 You do this by adding a lambda function returning `bool` (`true` = include in the result) before any `ISharedComponentData` value filter in the argument. (You can use both) The lambda function can contain any number of `IComponentData` up to what you specified on type argument, always ordered from left to right. So put the one that you don't want to perform WHERE filter on the right. (Such as tag components where it has no value to WHERE filter anyways.)
 
-It is only available on methods that returns `Entity`. (`GetSingletonEntity`, `EntityCount`, and `Entities`.)
+It is only available on methods that returns `Entity`. (`GetSingleEntity`, `EntityCount`, and `Entities`.)
 
 ```csharp
 // Typing where: is optional, but it did make the test more readable.
@@ -92,7 +92,7 @@ eaq.Entities<CD1, CD2, CD3>( where: cd1 => cd1.value % 2 == 0 );
 // You can add more up to total `IComponentData` you specified.
 // It is then filtering different components of the same entity.
 // You cannot do like (cd1, cd3) in the lambda, it must be from left to right as listed in generic type argument.
-eaq.GetSingletonEntity<CD1, CD2, CD3, CD4>( where: (cd1, cd2) => cd1.value % 2 == 0 && cd1.value + cd2.value = 555; );
+eaq.GetSingle<CD1, CD2, CD3, CD4>( where: (cd1, cd2) => cd1.value % 2 == 0 && cd1.value + cd2.value = 555; );
 
 // It is possible to use WHERE CD filter together with SCD value filter, just make sure SCD filter comes later.
 eaq.EntityCount<CD1, CD2, CD3, SCD1, SCD2>( where: cd1 => cd1.value % 2 == 0, scd1Value, nf1: true);
