@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using Unity.Entities;
+using System.Linq;
 
 namespace E7.EcsTesting
 {
@@ -25,8 +26,8 @@ namespace E7.EcsTesting
         {
             var allSystems =
                 DefaultWorldInitialization.GetAllSystems(WorldSystemFilterFlags.Default, requireExecuteAlways: false);
-            allSystems.Add(typeof(ConstantDeltaTimeSystem)); //Need to be added with UpdateWorldTimeSystem at the same time.
-            DefaultWorldInitialization.AddSystemsToRootLevelSystemGroups(w, allSystems);
+            DefaultWorldInitialization.AddSystemsToRootLevelSystemGroups(w,
+                allSystems.Concat(new[] {typeof(ConstantDeltaTimeSystem)}));
         }
     }
 }
